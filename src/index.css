@@ -1,0 +1,54 @@
+:root {
+  /* Design system colors */
+  --cotton-ivory: #f7f5ef;
+  --plate-white: #fdfcf9;
+  --powder-blue: #b7c8dc;
+  --wisteria: #9aa3ce;
+  --wisteria-alt: #7a90c5;
+  --slate-blue: #496484;
+  --midnight-navy: #2a385b;
+  --garden-sage: #a8b5a3;
+  --willow: #5a6b4d;
+
+  /* Fonts */
+  --font-script: 'Ballet', cursive;
+  --font-body: 'Barlow', sans-serif;
+  --font-display: 'Apple Garamond', 'EB Garamond', Garamond, 'Times New Roman', serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--midnight-navy);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img {
+  display: block;
+}
+
+::selection {
+  background: var(--powder-blue);
+  color: var(--midnight-navy);
+}
+
+/* fine paper grain over the whole page, like printed stationery */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
