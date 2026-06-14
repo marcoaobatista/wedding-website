@@ -5,8 +5,8 @@ import armsRaw from './assets/arms.svg?raw'
 import monogramRaw from './assets/cm-monogram.svg?raw'
 import logoRaw from './assets/cm-logo.svg?raw'
 
-// Prefix for files served from public/ so they resolve under the
-// deployed base path (e.g. /wedding-website/). Ends with a slash.
+// Prefix for files served from public/ so they resolve against the
+// deployed base path. '/' on the custom domain; set by vite base.
 const BASE = import.meta.env.BASE_URL
 
 const carouselPhotos = [
