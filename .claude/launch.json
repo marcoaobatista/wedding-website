@@ -3,10 +3,9 @@
   "configurations": [
     {
       "name": "wedding",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 5173,
-      "autoPort": true
+      "runtimeExecutable": "/Users/marco/.nvm/versions/node/v20.13.1/bin/node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "4180", "--strictPort"],
+      "port": 4180
     }
   ]
 }

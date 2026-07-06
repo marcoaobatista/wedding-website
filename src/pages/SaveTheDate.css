@@ -1,0 +1,89 @@
+/* ============================================================
+   Save the Date — standalone page (postcard image)
+   ============================================================ */
+
+.std-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 76px;
+  padding: 0 20px;
+  background: var(--cotton-ivory);
+}
+
+.std-header-mark {
+  display: inline-flex;
+  line-height: 0;
+  color: var(--midnight-navy);
+  text-decoration: none;
+}
+
+.std-header-mark svg {
+  display: block;
+  height: 28px;
+  width: auto;
+}
+
+.std-header-mark svg path {
+  fill: currentColor;
+}
+
+.std-main {
+  background: var(--cotton-ivory);
+  min-height: 100vh;
+}
+
+/* Postcard hero: the image sits front and center, fully visible
+   in the viewport below the header, on desktop and mobile alike,
+   with the FAQ link tucked beneath it. */
+.std-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  height: calc(100vh - 76px);
+  height: calc(100svh - 76px);
+  padding: 0 20px 28px;
+}
+
+.std-image {
+  /* shrinkable flex child: the postcard gives up space for the link */
+  flex: 0 1 auto;
+  min-height: 0;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 2px;
+  box-shadow: 0 24px 48px -24px rgba(42, 56, 91, 0.35);
+}
+
+/* navy take on the homepage ghost button */
+.std-faq-link {
+  flex: none;
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--midnight-navy);
+  text-decoration: none;
+  border: 1px solid rgba(42, 56, 91, 0.55);
+  border-radius: 8px;
+  padding: 13px 32px;
+  min-width: 120px;
+  text-align: center;
+  background: transparent;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.std-faq-link:hover {
+  background: var(--midnight-navy);
+  border-color: var(--midnight-navy);
+  color: var(--cotton-ivory);
+}

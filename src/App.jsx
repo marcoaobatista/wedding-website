@@ -3,7 +3,8 @@ import './App.css'
 import bowRaw from './assets/bow.svg?raw'
 import armsRaw from './assets/arms.svg?raw'
 import monogramRaw from './assets/cm-monogram.svg?raw'
-import logoRaw from './assets/cm-logo.svg?raw'
+import SiteHeader from './components/SiteHeader.jsx'
+import SiteFooter from './components/SiteFooter.jsx'
 
 // Prefix for files served from public/ so they resolve against the
 // deployed base path. '/' on the custom domain; set by vite base.
@@ -31,6 +32,7 @@ const NAV_LINKS = [
   { href: '#countdown', label: 'Countdown' },
   { href: '#rsvp', label: 'RSVP' },
   { href: '#gallery', label: 'Gallery' },
+  { href: '/faq/', label: 'FAQs' },
 ]
 
 /* Inlines an SVG so its paths can be stroke-drawn by CSS.
@@ -112,105 +114,6 @@ function useCountdown(target) {
   return { days, hours, minutes }
 }
 
-/* Fixed header that sits transparent over the hero and turns into a
-   frosted bar once the page scrolls. The hamburger opens a full-screen
-   menu styled to match the invitation aesthetic. */
-function SiteHeader() {
-  const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  // While the menu is open: lock body scroll and allow Escape to close.
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e) => e.key === 'Escape' && setOpen(false)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    window.addEventListener('keydown', onKey)
-    return () => {
-      document.body.style.overflow = prev
-      window.removeEventListener('keydown', onKey)
-    }
-  }, [open])
-
-  const headerClass = [
-    'site-header',
-    scrolled && 'is-scrolled',
-    open && 'is-open',
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  return (
-    <>
-      <header className={headerClass}>
-        <a
-          className="site-header-mark"
-          href="#top"
-          aria-label="Carys &amp; Marco Antônio — home"
-          onClick={() => setOpen(false)}
-        >
-          <span
-            className="site-header-logo"
-            dangerouslySetInnerHTML={{ __html: logoRaw }}
-          />
-        </a>
-
-        {/* inline links on wide screens; collapses to the hamburger below */}
-        <nav className="site-nav" aria-label="Primary">
-          {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href}>
-              {link.label}
-            </a>
-          ))}
-        </nav>
-
-        <button
-          type="button"
-          className="nav-toggle"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          aria-controls="site-menu"
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="nav-toggle-bar" />
-          <span className="nav-toggle-bar" />
-          <span className="nav-toggle-bar" />
-        </button>
-      </header>
-
-      <nav
-        id="site-menu"
-        className={`site-menu${open ? ' is-open' : ''}`}
-        aria-hidden={!open}
-      >
-        <img
-          src={`${BASE}flower.svg`}
-          alt=""
-          className="site-menu-flower"
-          aria-hidden="true"
-        />
-        <ul className="site-menu-list">
-          {NAV_LINKS.map((link, i) => (
-            <li key={link.href} style={{ '--menu-i': i }}>
-              <a href={link.href} onClick={() => setOpen(false)}>
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-        <p className="site-menu-date">15 . 05 . 2027</p>
-      </nav>
-    </>
-  )
-}
-
 function Rule({ flip = false }) {
   return (
     <div className="rule" aria-hidden="true">
@@ -233,7 +136,7 @@ export default function App() {
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader links={NAV_LINKS} />
       <main>
       {/* Section 1 — Hero */}
       <section
@@ -302,7 +205,7 @@ export default function App() {
         <div className="gifting-inner" data-reveal>
           <h2 className="script-heading">Gifting</h2>
           <p className="overline">OUR WEDDING REGISTRY</p>
-          <a className="ghost-button" href="#">GIVE</a>
+          <a className="ghost-button" href="#">Coming Soon</a>
         </div>
       </section>
 
@@ -332,7 +235,7 @@ export default function App() {
         <DrawnSvg raw={armsRaw} className="rsvp-bg" stagger="4ms" />
         <div className="rsvp-inner" data-reveal>
           <h2 className="script-heading">Kindly Reply</h2>
-          <p className="overline">BY JANUARY 12TH</p>
+          <p className="overline">Coming Soon</p>
           <a className="ghost-button" href="#">RSVP</a>
         </div>
       </section>
@@ -352,12 +255,7 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="site-footer">
-        <img src={`${BASE}flower.svg`} alt="" className="site-footer-flower" aria-hidden="true" />
-        <p className="site-footer-script">with love,</p>
-        <p className="site-footer-names">CARYS &amp; MARCO ANTÔNIO</p>
-        <p className="site-footer-date">15 . 05 . 2027 · MIDLAND, MICHIGAN</p>
-      </footer>
+      <SiteFooter />
       </main>
     </>
   )
