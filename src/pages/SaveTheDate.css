@@ -59,6 +59,18 @@
   box-shadow: 0 24px 48px -24px rgba(42, 56, 91, 0.35);
 }
 
+.std-note {
+  flex: none;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  color: var(--slate-blue);
+  text-align: center;
+}
+
 /* navy take on the homepage ghost button */
 .std-faq-link {
   flex: none;

@@ -23,6 +23,7 @@ export default function SaveTheDate() {
             alt="Save the date — Carys &amp; Marco, 15 May 2027"
             className="std-image"
           />
+          <p className="std-note">formal invitation to follow</p>
           <a className="std-faq-link" href="/faq/">
             Questions? Read our FAQs
           </a>
