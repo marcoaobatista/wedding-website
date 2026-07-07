@@ -9,6 +9,14 @@ const STORAGE_KEY = 'lang'
 const LanguageContext = createContext({ lang: 'en', setLang: () => {} })
 
 function initialLang() {
+  // a ?lang= in a shared link wins over everything
+  // (e.g. carysandmarco.com/?lang=pt or /save-the-date/?lang=en)
+  const param = new URLSearchParams(window.location.search).get('lang')?.toLowerCase()
+  if (param) {
+    if (param.startsWith('pt') || param === 'br') return 'pt'
+    if (param.startsWith('en')) return 'en'
+  }
+
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved === 'en' || saved === 'pt') return saved
