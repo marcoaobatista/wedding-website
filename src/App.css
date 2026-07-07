@@ -611,18 +611,24 @@
 
 .gallery {
   background: var(--plate-white);
-  overflow: hidden;
+  overflow-x: auto;
   width: 100%;
+  cursor: grab;
+  /* hide the scrollbar — the drift and grab cursor signal scrollability */
+  scrollbar-width: none;
+}
+
+.gallery::-webkit-scrollbar {
+  display: none;
+}
+
+.gallery.is-dragging {
+  cursor: grabbing;
 }
 
 .gallery-track {
   display: flex;
   width: max-content;
-  animation: gallery-scroll 60s linear infinite;
-}
-
-.gallery-track:hover {
-  animation-play-state: paused;
 }
 
 .gallery-photo {
@@ -632,26 +638,8 @@
   flex: none;
   padding: 28px 14px;
   background: var(--plate-white);
-}
-
-
-@keyframes gallery-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    /* moves by half the track (the duplicated set) for a seamless loop */
-    transform: translateX(-50%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gallery-track {
-    animation: none;
-  }
-  .gallery {
-    overflow-x: auto;
-  }
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 /* ============================================================
@@ -698,6 +686,30 @@
   font-size: 11px;
   letter-spacing: 0.28em;
   color: rgba(42, 56, 91, 0.6);
+}
+
+.site-footer-credit {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: rgba(42, 56, 91, 0.5);
+  margin-top: 22px;
+}
+
+.site-footer-credit a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(42, 56, 91, 0.25);
+  padding-bottom: 1px;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.site-footer-credit a:hover {
+  color: var(--midnight-navy);
+  border-bottom-color: var(--midnight-navy);
 }
 
 /* ============================================================
@@ -770,6 +782,28 @@ section[id] {
 /* lift the logo off the painting while the header is transparent */
 .site-header:not(.is-scrolled):not(.is-open) .site-header-logo svg {
   filter: drop-shadow(-1px -1px 0 rgba(0, 0, 0, 0.22));
+}
+
+/* nav + language switch + hamburger cluster on the right */
+.site-header-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 2.4vw, 34px);
+}
+
+.site-header:not(.is-scrolled):not(.is-open) .lang-toggle {
+  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* language switch inside the full-screen menu */
+.site-menu-lang {
+  margin-top: 40px;
+  font-size: 14px;
+  color: var(--midnight-navy);
+}
+
+.site-menu .site-menu-date {
+  margin-top: 20px;
 }
 
 /* inline navigation — shown on wide screens, hidden once it would crowd */

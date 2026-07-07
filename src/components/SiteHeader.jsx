@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import logoRaw from '../assets/cm-logo.svg?raw'
+import { LangToggle, useLang } from '../i18n.jsx'
+
+// numeric date: month-first in English, day-first in Portuguese
+const MENU_DATE = { en: '05 . 15 . 2027', pt: '15 . 05 . 2027' }
 
 // Prefix for files served from public/ so they resolve against the
 // deployed base path. '/' on the custom domain; set by vite base.
@@ -14,6 +18,7 @@ const BASE = import.meta.env.BASE_URL
 export default function SiteHeader({ links, homeHref = '#top', solid = false }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { lang } = useLang()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -58,27 +63,31 @@ export default function SiteHeader({ links, homeHref = '#top', solid = false }) 
           />
         </a>
 
-        {/* inline links on wide screens; collapses to the hamburger below */}
-        <nav className="site-nav" aria-label="Primary">
-          {links.map((link) => (
-            <a key={link.href} href={link.href}>
-              {link.label}
-            </a>
-          ))}
-        </nav>
+        <div className="site-header-right">
+          {/* inline links on wide screens; collapses to the hamburger below */}
+          <nav className="site-nav" aria-label="Primary">
+            {links.map((link) => (
+              <a key={link.href} href={link.href}>
+                {link.label}
+              </a>
+            ))}
+          </nav>
 
-        <button
-          type="button"
-          className="nav-toggle"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          aria-controls="site-menu"
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="nav-toggle-bar" />
-          <span className="nav-toggle-bar" />
-          <span className="nav-toggle-bar" />
-        </button>
+          <LangToggle />
+
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            aria-controls="site-menu"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className="nav-toggle-bar" />
+            <span className="nav-toggle-bar" />
+            <span className="nav-toggle-bar" />
+          </button>
+        </div>
       </header>
 
       <nav
@@ -101,7 +110,8 @@ export default function SiteHeader({ links, homeHref = '#top', solid = false }) 
             </li>
           ))}
         </ul>
-        <p className="site-menu-date">15 . 05 . 2027</p>
+        <LangToggle className="site-menu-lang" />
+        <p className="site-menu-date">{MENU_DATE[lang]}</p>
       </nav>
     </>
   )

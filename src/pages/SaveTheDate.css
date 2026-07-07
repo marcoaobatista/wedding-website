@@ -3,12 +3,22 @@
    ============================================================ */
 
 .std-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 76px;
   padding: 0 20px;
   background: var(--cotton-ivory);
+}
+
+/* language switch pinned to the right of the centered logo */
+.std-lang {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--midnight-navy);
 }
 
 .std-header-mark {
@@ -59,8 +69,14 @@
   box-shadow: 0 24px 48px -24px rgba(42, 56, 91, 0.35);
 }
 
-.std-note {
+.std-notes {
   flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.std-note {
   font-family: var(--font-body);
   font-weight: 500;
   font-size: 13px;
@@ -69,6 +85,12 @@
   line-height: 1.5;
   color: var(--slate-blue);
   text-align: center;
+}
+
+.std-note--sub {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  opacity: 0.75;
 }
 
 /* navy take on the homepage ghost button */

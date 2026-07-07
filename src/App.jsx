@@ -5,6 +5,7 @@ import armsRaw from './assets/arms.svg?raw'
 import monogramRaw from './assets/cm-monogram.svg?raw'
 import SiteHeader from './components/SiteHeader.jsx'
 import SiteFooter from './components/SiteFooter.jsx'
+import { LanguageProvider, useLang } from './i18n.jsx'
 
 // Prefix for files served from public/ so they resolve against the
 // deployed base path. '/' on the custom domain; set by vite base.
@@ -25,15 +26,70 @@ const carouselPhotos = [
 const WEDDING_DATE = new Date('2027-05-15T15:00:00-04:00')
 
 // In-page navigation — each entry targets a section id below.
-const NAV_LINKS = [
-  { href: '#top', label: 'Home' },
-  { href: '#details', label: 'Details' },
-  { href: '#gifting', label: 'Gifting' },
-  { href: '#countdown', label: 'Countdown' },
-  { href: '#rsvp', label: 'RSVP' },
-  { href: '#gallery', label: 'Gallery' },
-  { href: '/faq/', label: 'FAQs' },
-]
+const NAV_LINKS = {
+  en: [
+    { href: '#top', label: 'Home' },
+    { href: '#details', label: 'Details' },
+    { href: '#gifting', label: 'Gifting' },
+    { href: '#countdown', label: 'Countdown' },
+    { href: '#rsvp', label: 'RSVP' },
+    { href: '#gallery', label: 'Gallery' },
+    { href: '/faq/', label: 'FAQs' },
+  ],
+  pt: [
+    { href: '#top', label: 'Início' },
+    { href: '#details', label: 'Detalhes' },
+    { href: '#gifting', label: 'Presentes' },
+    { href: '#countdown', label: 'Contagem' },
+    { href: '#rsvp', label: 'RSVP' },
+    { href: '#gallery', label: 'Galeria' },
+    { href: '/faq/', label: 'Dúvidas' },
+  ],
+}
+
+// All translatable copy on this page.
+const T = {
+  en: {
+    heroScript: 'the wedding of',
+    heroDate: 'MAY 15, 2027 · MIDLAND, MICHIGAN',
+    ceremonyScript: 'Ceremony',
+    ceremonyHeading: 'TO BE WED',
+    ceremonyDate: 'Saturday, May 15th 2027',
+    timeTbd: 'Time TBD',
+    receptionScript: 'Reception',
+    receptionHeading: 'TO BE FED',
+    receptionBody: 'Cocktail Hour and Dinner',
+    giftingScript: 'Gifting',
+    giftingOverline: 'OUR WEDDING REGISTRY',
+    comingSoon: 'Coming Soon',
+    days: 'DAYS',
+    hours: 'HOURS',
+    minutes: 'MINUTES',
+    countdownCaption: 'until we say I do',
+    rsvpScript: 'Kindly Reply',
+    rsvpButton: 'RSVP',
+  },
+  pt: {
+    heroScript: 'o casamento de',
+    heroDate: '15 DE MAIO DE 2027 · MIDLAND, MICHIGAN',
+    ceremonyScript: 'Cerimônia',
+    ceremonyHeading: 'PARA CASAR',
+    ceremonyDate: 'Sábado, 15 de maio de 2027',
+    timeTbd: 'Horário a definir',
+    receptionScript: 'Recepção',
+    receptionHeading: 'PARA FESTEJAR',
+    receptionBody: 'Coquetel e Jantar',
+    giftingScript: 'Presentes',
+    giftingOverline: 'NOSSA LISTA DE PRESENTES',
+    comingSoon: 'Em breve',
+    days: 'DIAS',
+    hours: 'HORAS',
+    minutes: 'MINUTOS',
+    countdownCaption: 'até dizermos sim',
+    rsvpScript: 'Confirme sua presença',
+    rsvpButton: 'RSVP',
+  },
+}
 
 /* Inlines an SVG so its paths can be stroke-drawn by CSS.
    Each path gets pathLength=1 (normalizes dash math) and a --i index
@@ -114,6 +170,116 @@ function useCountdown(target) {
   return { days, hours, minutes }
 }
 
+/* Edge-to-edge photo strip: a real scroll container (wheel, trackpad,
+   touch, or mouse-drag all work) that also drifts on its own until it
+   reaches the last photo. No looping. */
+function Gallery() {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const el = ref.current
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    // timestamp until which auto-drift is paused; Infinity while hovered/dragged
+    let pausedUntil = reduceMotion ? Infinity : 0
+    let hovering = false
+    let dragging = false
+    let dragStartX = 0
+    let dragStartScroll = 0
+    let pos = el.scrollLeft
+    let last = performance.now()
+    let raf
+
+    const step = (now) => {
+      const dt = Math.min(now - last, 100)
+      last = now
+      const maxScroll = el.scrollWidth - el.clientWidth
+
+      // a scroll we didn't cause (keyboard, momentum, scrollbar…):
+      // adopt the new position and hold the drift for a moment
+      if (Math.abs(el.scrollLeft - pos) > 1) {
+        pos = el.scrollLeft
+        pausedUntil = Math.max(pausedUntil, now + 3000)
+      }
+
+      if (now > pausedUntil && !hovering && !dragging && pos < maxScroll) {
+        pos = Math.min(pos + dt * 0.025, maxScroll) // ~25px per second
+        el.scrollLeft = pos
+      } else {
+        pos = el.scrollLeft
+      }
+      raf = requestAnimationFrame(step)
+    }
+    raf = requestAnimationFrame(step)
+
+    const pause = () => {
+      pausedUntil = Math.max(pausedUntil, performance.now() + 3000)
+    }
+
+    const onPointerEnter = (e) => {
+      if (e.pointerType === 'mouse') hovering = true
+    }
+    const onPointerLeave = () => {
+      hovering = false
+      pause()
+    }
+    const onPointerDown = (e) => {
+      if (e.pointerType !== 'mouse') return pause()
+      dragging = true
+      dragStartX = e.clientX
+      dragStartScroll = el.scrollLeft
+      el.classList.add('is-dragging')
+      el.setPointerCapture(e.pointerId)
+    }
+    const onPointerMove = (e) => {
+      if (!dragging) return
+      el.scrollLeft = dragStartScroll - (e.clientX - dragStartX)
+    }
+    const onPointerUp = () => {
+      dragging = false
+      el.classList.remove('is-dragging')
+      pause()
+    }
+
+    el.addEventListener('wheel', pause, { passive: true })
+    el.addEventListener('touchend', pause, { passive: true })
+    el.addEventListener('pointerenter', onPointerEnter)
+    el.addEventListener('pointerleave', onPointerLeave)
+    el.addEventListener('pointerdown', onPointerDown)
+    el.addEventListener('pointermove', onPointerMove)
+    el.addEventListener('pointerup', onPointerUp)
+    el.addEventListener('pointercancel', onPointerUp)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      el.removeEventListener('wheel', pause)
+      el.removeEventListener('touchend', pause)
+      el.removeEventListener('pointerenter', onPointerEnter)
+      el.removeEventListener('pointerleave', onPointerLeave)
+      el.removeEventListener('pointerdown', onPointerDown)
+      el.removeEventListener('pointermove', onPointerMove)
+      el.removeEventListener('pointerup', onPointerUp)
+      el.removeEventListener('pointercancel', onPointerUp)
+    }
+  }, [])
+
+  return (
+    <section className="gallery" id="gallery" data-reveal ref={ref}>
+      <div className="gallery-track">
+        {carouselPhotos.map((photo) => (
+          <img
+            key={photo}
+            src={`${BASE}carossel/${photo}`}
+            alt=""
+            className="gallery-photo"
+            draggable={false}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function Rule({ flip = false }) {
   return (
     <div className="rule" aria-hidden="true">
@@ -128,15 +294,17 @@ function Rule({ flip = false }) {
   )
 }
 
-export default function App() {
+function AppContent() {
   const { days, hours, minutes } = useCountdown(WEDDING_DATE)
+  const { lang } = useLang()
+  const t = T[lang]
   useScrollReveal()
 
   const pad = (n) => String(n).padStart(2, '0')
 
   return (
     <>
-      <SiteHeader links={NAV_LINKS} />
+      <SiteHeader links={NAV_LINKS[lang]} />
       <main>
       {/* Section 1 — Hero */}
       <section
@@ -145,7 +313,7 @@ export default function App() {
         style={{ backgroundImage: `url(${BASE}monet-painting.jpg)` }}
       >
         <div className="hero-inner">
-          <p className="hero-script">the wedding of</p>
+          <p className="hero-script">{t.heroScript}</p>
           <Rule flip />
           <h1 className="hero-name">
             <img
@@ -155,18 +323,18 @@ export default function App() {
             />
           </h1>
           <Rule />
-          <p className="hero-date">15 MAY 2027 · MIDLAND, MICHIGAN</p>
+          <p className="hero-date">{t.heroDate}</p>
         </div>
       </section>
 
       {/* Section 2 — Ceremony & Reception */}
       <section className="details" id="details">
         <div className="details-col" data-reveal="left">
-          <p className="details-script">Ceremony</p>
-          <h2 className="details-heading">TO BE WED</h2>
+          <p className="details-script">{t.ceremonyScript}</p>
+          <h2 className="details-heading">{t.ceremonyHeading}</h2>
           <div className="details-body">
-            <p>Saturday, May 15th 2027</p>
-            <p>Time TBD</p>
+            <p>{t.ceremonyDate}</p>
+            <p>{t.timeTbd}</p>
             <p className="details-venue">Our Redeemer Church</p>
           </div>
         </div>
@@ -176,11 +344,11 @@ export default function App() {
           <span className="details-divider-line" />
         </div>
         <div className="details-col" data-reveal="right">
-          <p className="details-script">Reception</p>
-          <h2 className="details-heading">TO BE FED</h2>
+          <p className="details-script">{t.receptionScript}</p>
+          <h2 className="details-heading">{t.receptionHeading}</h2>
           <div className="details-body">
-            <p>Cocktail Hour and Dinner</p>
-            <p>Time TBD</p>
+            <p>{t.receptionBody}</p>
+            <p>{t.timeTbd}</p>
             <p className="details-venue">The H Hotel</p>
           </div>
         </div>
@@ -203,9 +371,9 @@ export default function App() {
       <section className="gifting" id="gifting">
         <DrawnSvg raw={bowRaw} className="gifting-bg" stagger="700ms" />
         <div className="gifting-inner" data-reveal>
-          <h2 className="script-heading">Gifting</h2>
-          <p className="overline">OUR WEDDING REGISTRY</p>
-          <a className="ghost-button" href="#">Coming Soon</a>
+          <h2 className="script-heading">{t.giftingScript}</h2>
+          <p className="overline">{t.giftingOverline}</p>
+          <a className="ghost-button" href="#">{t.comingSoon}</a>
         </div>
       </section>
 
@@ -214,19 +382,19 @@ export default function App() {
         <div className="countdown-inner">
           <div className="countdown-unit" data-reveal>
             <span className="countdown-number">{days}</span>
-            <span className="countdown-label">DAYS</span>
+            <span className="countdown-label">{t.days}</span>
           </div>
           <div className="countdown-unit" data-reveal style={{ '--reveal-delay': '0.2s' }}>
             <span className="countdown-number">{pad(hours)}</span>
-            <span className="countdown-label">HOURS</span>
+            <span className="countdown-label">{t.hours}</span>
           </div>
           <div className="countdown-unit" data-reveal style={{ '--reveal-delay': '0.4s' }}>
             <span className="countdown-number">{pad(minutes)}</span>
-            <span className="countdown-label">MINUTES</span>
+            <span className="countdown-label">{t.minutes}</span>
           </div>
         </div>
         <p className="countdown-caption" data-reveal style={{ '--reveal-delay': '0.6s' }}>
-          until we say I do
+          {t.countdownCaption}
         </p>
       </section>
 
@@ -234,29 +402,26 @@ export default function App() {
       <section className="rsvp" id="rsvp">
         <DrawnSvg raw={armsRaw} className="rsvp-bg" stagger="4ms" />
         <div className="rsvp-inner" data-reveal>
-          <h2 className="script-heading">Kindly Reply</h2>
-          <p className="overline">Coming Soon</p>
-          <a className="ghost-button" href="#">RSVP</a>
+          <h2 className="script-heading">{t.rsvpScript}</h2>
+          <p className="overline">{t.comingSoon}</p>
+          <a className="ghost-button" href="#">{t.rsvpButton}</a>
         </div>
       </section>
 
-      {/* Section 7 — Photo Gallery (edge-to-edge auto-scrolling carousel) */}
-      <section className="gallery" id="gallery" data-reveal>
-        <div className="gallery-track">
-          {[...carouselPhotos, ...carouselPhotos].map((photo, i) => (
-            <img
-              key={`${photo}-${i}`}
-              src={`${BASE}carossel/${photo}`}
-              alt=""
-              className="gallery-photo"
-            />
-          ))}
-        </div>
-      </section>
+      {/* Section 7 — Photo Gallery (scrollable, auto-drifting carousel) */}
+      <Gallery />
 
       {/* Footer */}
       <SiteFooter />
       </main>
     </>
+  )
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   )
 }

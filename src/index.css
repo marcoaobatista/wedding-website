@@ -37,6 +37,31 @@ img {
   display: block;
 }
 
+/* EN · PT language switch — shared by every page's header */
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--hd-fg, var(--midnight-navy));
+}
+
+.lang-toggle span {
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+}
+
+.lang-toggle .is-active {
+  opacity: 1;
+}
+
 ::selection {
   background: var(--powder-blue);
   color: var(--midnight-navy);
